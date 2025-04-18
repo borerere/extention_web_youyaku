@@ -94,7 +94,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       let prompt = '';
       if (message.mode === 'markdown') {
-        prompt = `次の文章を要約してください。出力はマークダウン形式としてください。見出し・箇条書き・表などを活用し、重要な点を分かりやすくまとめてください。\n\n${text.slice(0, 3000)}`;
+        prompt = `次の文章を日本語でマークダウン形式で構造化要約してください。見出し・箇条書き・表などを活用し、重要な点を分かりやすくまとめてください。\n\n${text.slice(0, 3000)}`;
       } else {
         prompt = `次の文章を日本語で3文程度に要約してください。\n\n${text.slice(0, 3000)}`;
       }
