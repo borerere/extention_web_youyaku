@@ -98,6 +98,14 @@
     const selection = window.getSelection();
     if (selection && selection.toString().trim().length > 20) {
       text = selection.toString();
+    } else if (/^https:\/\/(www\.)?youtube\.com\//.test(window.location.href)) {
+      // YouTubeページなら字幕取得
+      text = await window.getYoutubeTranscriptText();
+      if (!text || text.length < 20) {
+        overlay.textContent = '字幕（文字起こし）が取得できませんでした。動画に字幕があるか、YouTubeのUIが対応しているかご確認ください。';
+        overlay.appendChild(closeBtn);
+        return;
+      }
     } else {
       // 本文抽出（main/article/コンテンツ系セレクタ優先）
       const selectors = [
@@ -146,9 +154,31 @@
             mdDiv.querySelectorAll('h1,h2,h3').forEach(h => { h.style.color = '#1976d2'; h.style.margin = '12px 0 4px 0'; });
             mdDiv.querySelectorAll('ul,ol').forEach(l => { l.style.marginLeft = '1.5em'; });
             overlay.appendChild(mdDiv);
+            // トークン情報表示
+            const tokenDiv = document.createElement('div');
+            tokenDiv.style.fontSize = '0.95em';
+            tokenDiv.style.color = '#666';
+            tokenDiv.style.marginTop = '8px';
+            if (response.usage) {
+              tokenDiv.innerHTML = `モデル: <b>${response.model}</b>　/　トークン: <b>${response.usage.total_tokens}</b> （プロンプト: ${response.usage.prompt_tokens}, 生成: ${response.usage.completion_tokens}）`;
+            } else {
+              tokenDiv.innerHTML = `モデル: <b>${response.model || ''}</b>　/　トークン情報なし`;
+            }
+            overlay.appendChild(tokenDiv);
           } else {
             overlay.textContent = response.summary;
             overlay.appendChild(closeBtn);
+            // トークン情報表示
+            const tokenDiv = document.createElement('div');
+            tokenDiv.style.fontSize = '0.95em';
+            tokenDiv.style.color = '#666';
+            tokenDiv.style.marginTop = '8px';
+            if (response.usage) {
+              tokenDiv.innerHTML = `モデル: <b>${response.model}</b>　/　トークン: <b>${response.usage.total_tokens}</b> （プロンプト: ${response.usage.prompt_tokens}, 生成: ${response.usage.completion_tokens}）`;
+            } else {
+              tokenDiv.innerHTML = `モデル: <b>${response.model || ''}</b>　/　トークン情報なし`;
+            }
+            overlay.appendChild(tokenDiv);
           }
         } else {
           overlay.textContent = '要約に失敗しました: ' + (response && response.error ? response.error : '不明なエラー');

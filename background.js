@@ -128,8 +128,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           throw new Error('APIエラー: ' + res.status + ' ' + res.statusText + (data && data.error ? ' - ' + data.error.message : ''));
         }
         const summary = data && data.choices && data.choices[0] && data.choices[0].message.content ? data.choices[0].message.content.trim() : '要約失敗';
-        console.log('[BG] summary result', summary);
-        sendResponse({ success: true, summary });
+        const usage = data && data.usage ? data.usage : null;
+        console.log('[BG] summary result', summary, usage);
+        sendResponse({ success: true, summary, usage, model: useModel });
       } catch (e) {
         console.error('[BG] summarize error', e);
         sendResponse({ success: false, error: e.message });
