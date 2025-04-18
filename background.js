@@ -42,7 +42,12 @@ chrome.commands.onCommand.addListener(async (command) => {
           return;
         }
         // 要約API呼び出し
-        const prompt = `次の文章を日本語で3文程度に要約してください。\n\n${text.slice(0, 3000)}`;
+        let prompt = '';
+        if (message.mode === 'markdown') {
+          prompt = `次の文章を日本語でマークダウン形式で構造化要約してください。見出し・箇条書き・表などを活用し、重要な点を分かりやすくまとめてください。\n\n${text.slice(0, 3000)}`;
+        } else {
+          prompt = `次の文章を日本語で3文程度に要約してください。\n\n${text.slice(0, 3000)}`;
+        }
         try {
           const res = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
@@ -87,8 +92,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const useModel = model || 'gpt-3.5-turbo';
     console.log('[BG] summarize request', { apiKey: apiKey ? apiKey.slice(0,8)+'...' : 'none', textLen: text.length, model: useModel });
     (async () => {
+      let prompt = '';
+      if (message.mode === 'markdown') {
+        prompt = `次の文章を要約してください。出力はマークダウン形式としてください。見出し・箇条書き・表などを活用し、重要な点を分かりやすくまとめてください。\n\n${text.slice(0, 3000)}`;
+      } else {
+        prompt = `次の文章を日本語で3文程度に要約してください。\n\n${text.slice(0, 3000)}`;
+      }
       try {
-        const prompt = `次の文章を日本語で3文程度に要約してください。\n\n${text.slice(0, 3000)}`;
         console.log('[BG] OpenAI API fetch start', { promptLen: prompt.length });
         const res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',

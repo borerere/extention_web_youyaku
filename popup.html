@@ -5,12 +5,38 @@
   <title>ページ要約</title>
   <style>
     body { font-family: sans-serif; min-width: 300px; padding: 10px; }
-    #summary { white-space: pre-wrap; margin-top: 10px; }
+    #summary {
+      white-space: pre-wrap;
+      margin-top: 10px;
+      max-height: 300px;
+      overflow: auto;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 0.95em;
+    }
+    #summary p, #summary ul, #summary ol {
+      margin-top: 0.4em;
+      margin-bottom: 0.4em;
+    }
+    #summary li {
+      margin-bottom: 0.15em;
+    }
+    #copy-summary {
+      display: none;
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px;
+      font-size: 1em;
+      cursor: pointer;
+    }
     button { width: 100%; padding: 8px; font-size: 1em; }
   </style>
 </head>
 <body>
   <button id="summarize">ページを要約</button>
+  <button id="copy-summary">要約をコピー</button>
   <div id="summary"></div>
   <script src="popup.js"></script>
 </body>
