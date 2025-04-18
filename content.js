@@ -18,8 +18,18 @@
     position: 'fixed', top: '12px', left: 'calc(50% + 92px)', zIndex: 99999,
     padding: '10px 18px', fontSize: '1.05em', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
   });
-  document.body.appendChild(btnSimple);
-  document.body.appendChild(btnMd);
+
+  // 除外ドメインならボタン非表示
+  chrome.storage.local.get(['excluded_domains'], (result) => {
+    const domains = Array.isArray(result.excluded_domains) ? result.excluded_domains : [];
+    const domain = location.hostname;
+    if (domains.includes(domain)) {
+      btnSimple.style.display = 'none';
+      btnMd.style.display = 'none';
+    }
+    document.body.appendChild(btnSimple);
+    document.body.appendChild(btnMd);
+  });
 
   // 結果表示用のオーバーレイ
   const overlay = document.createElement('div');
@@ -110,9 +120,23 @@
       // 本文抽出（main/article/コンテンツ系セレクタ優先）
       // --- Futaba Channel (2chan) 専用抽出ロジック ---
       if (location.hostname.endsWith('may.2chan.net')) {
-        const futabaPosts = Array.from(document.querySelectorAll('span.res')).map(e => e.textContent.trim()).filter(Boolean);
-        if (futabaPosts.length > 0) {
-          text = futabaPosts.join('\n');
+        // .thre[data-res] 直下の blockquote（スレ主）、およびその下の table .rtd > blockquote（レス）を抽出
+        const thre = document.querySelector('div.thre[data-res]');
+        let blocks = [];
+        if (thre) {
+          // スレ主
+          const mainBlock = Array.from(thre.children).find(el => el.tagName === 'BLOCKQUOTE');
+          if (mainBlock && mainBlock.textContent.trim()) {
+            blocks.push(mainBlock.textContent.trim());
+          }
+          // レス
+          const replyBlocks = Array.from(thre.querySelectorAll('table .rtd > blockquote'))
+            .map(bq => bq.textContent.trim())
+            .filter(Boolean);
+          blocks = blocks.concat(replyBlocks);
+        }
+        if (blocks.length > 0) {
+          text = blocks.join('\n');
         }
       }
       // --- 通常のWebページ抽出ロジック ---
@@ -131,6 +155,13 @@
         }
       }
       if (!text) text = document.body.innerText;
+    }
+    // YouTube動画の場合はタイトルを先頭に付加
+    if (location.hostname.includes('youtube.com') && location.pathname === '/watch') {
+      const ytTitle = document.querySelector('h1.title')?.innerText || document.title;
+      if (ytTitle && text) {
+        text = `タイトル: ${ytTitle}\n${text}`;
+      }
     }
     if (!text || text.length < 20) {
       overlay.textContent = '本文が取得できませんでした';

@@ -1,6 +1,60 @@
 const summaryDiv = document.getElementById('summary');
 const copyBtn = document.getElementById('copy-summary');
 const modelSelect = document.getElementById('model-select');
+const excludeBtn = document.getElementById('exclude-domain');
+const excludedListDiv = document.getElementById('excluded-domains-list');
+
+// 除外ドメインリストの保存・取得（chrome.storage.localに保存）
+async function getExcludedDomains() {
+  return new Promise(resolve => {
+    chrome.storage.local.get(['excluded_domains'], (result) => {
+      resolve(Array.isArray(result.excluded_domains) ? result.excluded_domains : []);
+    });
+  });
+}
+async function setExcludedDomains(domains) {
+  return new Promise(resolve => {
+    chrome.storage.local.set({ excluded_domains: domains }, resolve);
+  });
+}
+async function renderExcludedDomains() {
+  const domains = await getExcludedDomains();
+  // 現在タブのドメインが除外対象ならボタン非表示
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let domain = '';
+  if (tab && tab.url) {
+    try { domain = new URL(tab.url).hostname; } catch {}
+  }
+  if (domain && domains.includes(domain)) {
+    excludeBtn.style.display = 'none';
+  } else {
+    excludeBtn.style.display = '';
+  }
+  if (domains.length === 0) {
+    excludedListDiv.textContent = '';
+    return;
+  }
+  excludedListDiv.innerHTML = '<b>除外ドメイン:</b> ' + domains.map(d => `<span style="margin-right:8px;">${d}</span>`).join('');
+}
+renderExcludedDomains();
+
+excludeBtn.addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab || !tab.url) return;
+  const url = new URL(tab.url);
+  const domain = url.hostname;
+  let domains = await getExcludedDomains();
+  if (!domains.includes(domain)) {
+    domains.push(domain);
+    await setExcludedDomains(domains);
+    renderExcludedDomains();
+    // ボタン非表示
+    excludeBtn.style.display = 'none';
+  } else {
+    excludeBtn.textContent = '既に除外済み';
+    setTimeout(() => { excludeBtn.textContent = 'このドメインを除外'; }, 1500);
+  }
+});
 
 // モデル選択の保存・復元
 chrome.storage.local.get(['openai_model'], (result) => {
@@ -25,10 +79,20 @@ copyBtn.addEventListener('click', () => {
 });
 
 document.getElementById('summarize').addEventListener('click', async () => {
+  // 除外ドメイン判定
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab || !tab.url) return;
+  const url = new URL(tab.url);
+  const domain = url.hostname;
+  const excluded = await getExcludedDomains();
+  if (excluded.includes(domain)) {
+    summaryDiv.textContent = `このドメイン（${domain}）は除外設定されています。`;
+    copyBtn.style.display = 'none';
+    return;
+  }
   summaryDiv.textContent = '要約中...';
   copyBtn.style.display = 'none';
   // アクティブタブから本文テキストを取得
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: () => document.body.innerText
