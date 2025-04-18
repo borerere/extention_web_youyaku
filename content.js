@@ -108,16 +108,26 @@
       }
     } else {
       // 本文抽出（main/article/コンテンツ系セレクタ優先）
-      const selectors = [
-        'article',
-        'main',
-        '#content, .content, .main-content, .article, .post, #main, .entry-content'
-      ];
-      for (const sel of selectors) {
-        const el = document.querySelector(sel);
-        if (el && el.innerText && el.innerText.length > 200) {
-          text = el.innerText;
-          break;
+      // --- Futaba Channel (2chan) 専用抽出ロジック ---
+      if (location.hostname.endsWith('may.2chan.net')) {
+        const futabaPosts = Array.from(document.querySelectorAll('span.res')).map(e => e.textContent.trim()).filter(Boolean);
+        if (futabaPosts.length > 0) {
+          text = futabaPosts.join('\n');
+        }
+      }
+      // --- 通常のWebページ抽出ロジック ---
+      if (!text) {
+        const selectors = [
+          'article',
+          'main',
+          '#content, .content, .main-content, .article, .post, #main, .entry-content'
+        ];
+        for (const sel of selectors) {
+          const el = document.querySelector(sel);
+          if (el && el.innerText && el.innerText.length > 200) {
+            text = el.innerText;
+            break;
+          }
         }
       }
       if (!text) text = document.body.innerText;
