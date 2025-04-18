@@ -1,5 +1,16 @@
 const summaryDiv = document.getElementById('summary');
 const copyBtn = document.getElementById('copy-summary');
+const modelSelect = document.getElementById('model-select');
+
+// モデル選択の保存・復元
+chrome.storage.local.get(['openai_model'], (result) => {
+  if (result.openai_model) {
+    modelSelect.value = result.openai_model;
+  }
+});
+modelSelect.addEventListener('change', () => {
+  chrome.storage.local.set({ openai_model: modelSelect.value });
+});
 
 copyBtn.addEventListener('click', () => {
   // プレーンテキストとしてコピー
@@ -30,7 +41,8 @@ document.getElementById('summarize').addEventListener('click', async () => {
     // APIキー取得
     chrome.storage.local.get(['openai_api_key', 'openai_model'], (result) => {
       const apiKey = result.openai_api_key;
-      const model = result.openai_model || 'gpt-3.5-turbo';
+      // モデルはセレクタの値を優先
+      const model = modelSelect.value || result.openai_model || 'gpt-3.5-turbo';
       if (!apiKey || !apiKey.startsWith('sk-')) {
         summaryDiv.textContent = 'APIキーが未設定です。オプション画面で設定してください。';
         return;
@@ -49,6 +61,14 @@ document.getElementById('summarize').addEventListener('click', async () => {
             summaryDiv.textContent = summaryText;
           }
           copyBtn.style.display = '';
+
+          // トークン情報とモデル名の表示
+          const tokenInfo = document.getElementById('token-info');
+          if (response.usage) {
+            tokenInfo.innerHTML = `トークン: <b>${response.usage.total_tokens}</b> （プロンプト: ${response.usage.prompt_tokens}, 生成: ${response.usage.completion_tokens}）`;
+          } else {
+            tokenInfo.innerHTML = `トークン情報なし`;
+          }
         } else {
           summaryDiv.textContent = '要約に失敗しました: ' + (response && response.error ? response.error : '不明なエラー');
           copyBtn.style.display = 'none';

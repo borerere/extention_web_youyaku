@@ -8,13 +8,43 @@
     #summary {
       white-space: pre-wrap;
       margin-top: 10px;
+      min-height: 60px;
       max-height: 300px;
-      overflow: auto;
+      overflow-y: scroll !important;
+      overflow-x: auto;
       background: #f9f9f9;
       border: 1px solid #ddd;
       padding: 10px;
       border-radius: 4px;
       font-size: 0.95em;
+      scrollbar-width: thin;
+      scrollbar-color: #aaa #f9f9f9;
+      box-sizing: border-box;
+    }
+    /* Chrome用のカスタムスクロールバー */
+    #summary::-webkit-scrollbar {
+      width: 10px;
+      background: #f9f9f9;
+    }
+    #summary::-webkit-scrollbar-thumb {
+      background: #bbb;
+      border-radius: 4px;
+      min-height: 20px;
+    }
+    #summary::-webkit-scrollbar-track {
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    /* Chrome用のカスタムスクロールバー */
+    #summary::-webkit-scrollbar {
+      width: 8px;
+    }
+    #summary::-webkit-scrollbar-thumb {
+      background: #bbb;
+      border-radius: 4px;
+    }
+    #summary::-webkit-scrollbar-track {
+      background: #f9f9f9;
     }
     #summary p, #summary ul, #summary ol {
       margin-top: 0.4em;
@@ -35,9 +65,16 @@
   </style>
 </head>
 <body>
+  <label for="model-select" style="font-size:0.98em;margin-bottom:4px;display:block;">モデル選択：</label>
+  <select id="model-select" style="width:100%;padding:6px 4px;font-size:1em;margin-bottom:10px;">
+    <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+    <option value="gpt-4">gpt-4</option>
+    <option value="gpt-4o">gpt-4o</option>
+  </select>
   <button id="summarize">ページを要約</button>
   <button id="copy-summary">要約をコピー</button>
   <div id="summary"></div>
+  <div id="token-info" style="font-size:0.9em;color:#666;margin-top:6px;"></div>
   <script src="popup.js"></script>
 </body>
 </html>
