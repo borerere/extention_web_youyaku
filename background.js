@@ -61,7 +61,7 @@ chrome.commands.onCommand.addListener(async (command) => {
                 { role: 'system', content: 'あなたは優秀な日本語要約AIです。' },
                 { role: 'user', content: prompt }
               ],
-              max_tokens: 256,
+              max_tokens: 1024,
               temperature: 0.5
             })
           });
@@ -112,7 +112,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               { role: 'system', content: 'あなたは優秀な日本語要約AIです。' },
               { role: 'user', content: prompt }
             ],
-            max_tokens: 256,
+            max_tokens: 1024,
             temperature: 0.5
           })
         });
