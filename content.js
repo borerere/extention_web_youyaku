@@ -9,14 +9,16 @@
   btnSimple.id = '__youyaku_btn_simple';
   Object.assign(btnSimple.style, {
     position: 'fixed', top: '12px', left: 'calc(50% - 92px)', zIndex: 99999,
-    padding: '10px 18px', fontSize: '1.05em', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', marginRight: '8px'
+    padding: '10px 18px', fontSize: '1.05em', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', marginRight: '8px',
+    opacity: '0.45', transition: 'opacity 0.2s'
   });
   const btnMd = document.createElement('button');
   btnMd.textContent = 'マークダウン構造化要約';
   btnMd.id = '__youyaku_btn_md';
   Object.assign(btnMd.style, {
     position: 'fixed', top: '12px', left: 'calc(50% + 92px)', zIndex: 99999,
-    padding: '10px 18px', fontSize: '1.05em', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+    padding: '10px 18px', fontSize: '1.05em', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    opacity: '0.45', transition: 'opacity 0.2s'
   });
 
   // 除外ドメインならボタン非表示
@@ -230,7 +232,38 @@
   }
 
   // ボタンイベント
-  btnSimple.addEventListener('click', () => runYouyaku('simple'));
-  btnMd.addEventListener('click', () => runYouyaku('markdown'));
+  let btnSimpleHover = false;
+  btnSimple.addEventListener('mouseenter', () => {
+    btnSimpleHover = true;
+    btnSimple.style.opacity = '1.0';
+  });
+  btnSimple.addEventListener('mouseleave', () => {
+    btnSimpleHover = false;
+    btnSimple.style.opacity = '0.45';
+  });
+  btnSimple.addEventListener('click', () => {
+    btnSimple.style.opacity = '1.0';
+    setTimeout(() => {
+      if (!btnSimpleHover) btnSimple.style.opacity = '0.45';
+    }, 500);
+    runYouyaku('simple');
+  });
+
+  let btnMdHover = false;
+  btnMd.addEventListener('mouseenter', () => {
+    btnMdHover = true;
+    btnMd.style.opacity = '1.0';
+  });
+  btnMd.addEventListener('mouseleave', () => {
+    btnMdHover = false;
+    btnMd.style.opacity = '0.45';
+  });
+  btnMd.addEventListener('click', () => {
+    btnMd.style.opacity = '1.0';
+    setTimeout(() => {
+      if (!btnMdHover) btnMd.style.opacity = '0.45';
+    }, 500);
+    runYouyaku('markdown');
+  });
 
 })();
