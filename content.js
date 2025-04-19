@@ -64,12 +64,13 @@
   overlay.id = '__youyaku_result';
   Object.assign(overlay.style, {
     position: 'fixed', top: '56px', left: '50%', transform: 'translateX(-50%)', zIndex: 99999,
-    minWidth: '320px', maxWidth: 'min(90vw, 600px)', background: '#fff', color: '#222', border: '1px solid #1976d2', borderRadius: '8px', padding: '18px 44px 18px 18px', boxShadow: '0 4px 24px rgba(0,0,0,0.25)', display: 'none', whiteSpace: 'pre-wrap', fontSize: '1em', lineHeight: '1.6', cursor: 'move',
+    minWidth: '320px', maxWidth: 'min(90vw, 600px)', background: '#fff', color: '#222', border: '1px solid #1976d2', borderRadius: '8px', padding: '38px 44px 18px 18px', boxShadow: '0 4px 24px rgba(0,0,0,0.25)', display: 'none', whiteSpace: 'pre-wrap', fontSize: '1em', lineHeight: '1.6', cursor: 'move',
     overflowY: 'scroll',
     overflowX: 'auto',
     maxHeight: '60vh',
     minHeight: '60px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    position: 'relative'
   });
   // Chrome用カスタムスクロールバー
   const style = document.createElement('style');
@@ -95,8 +96,9 @@
   // 閉じる・最小化ボタンラッパー
   const btnBar = document.createElement('div');
   Object.assign(btnBar.style, {
-    position: 'sticky', top: '0', right: '0', display: 'flex', justifyContent: 'flex-end', zIndex: 999999,
+    position: 'absolute', top: '0', right: '0', display: 'flex', justifyContent: 'flex-end', zIndex: 999999,
     background: 'rgba(255,255,255,0.95)', padding: '2px 0 0 0', marginBottom: '2px',
+    width: 'auto'
   });
   // 最小化ボタン
   const minBtn = document.createElement('button');
