@@ -92,13 +92,38 @@
   document.body.appendChild(overlay);
 
   // 閉じるボタン
+  // 閉じる・最小化ボタンラッパー
+  const btnBar = document.createElement('div');
+  Object.assign(btnBar.style, {
+    position: 'sticky', top: '0', right: '0', display: 'flex', justifyContent: 'flex-end', zIndex: 999999,
+    background: 'rgba(255,255,255,0.95)', padding: '2px 0 0 0', marginBottom: '2px',
+  });
+  // 最小化ボタン
+  const minBtn = document.createElement('button');
+  minBtn.textContent = '−';
+  Object.assign(minBtn.style, {
+    background: 'transparent', color: '#1976d2', border: 'none', fontSize: '1.2em', cursor: 'pointer', fontWeight: 'bold', marginRight: '6px'
+  });
+  // 閉じるボタン
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '×';
   Object.assign(closeBtn.style, {
-    position: 'absolute', top: '8px', right: '12px', background: 'transparent', color: '#1976d2', border: 'none', fontSize: '1.3em', cursor: 'pointer', fontWeight: 'bold'
+    background: 'transparent', color: '#1976d2', border: 'none', fontSize: '1.3em', cursor: 'pointer', fontWeight: 'bold'
   });
-  overlay.appendChild(closeBtn);
+  btnBar.appendChild(minBtn);
+  btnBar.appendChild(closeBtn);
+  overlay.appendChild(btnBar);
   closeBtn.addEventListener('click', () => { overlay.style.display = 'none'; });
+
+  // 最小化・復元
+  let minimized = false;
+  minBtn.addEventListener('click', () => {
+    minimized = !minimized;
+    Array.from(overlay.children).forEach(child => {
+      if (child !== btnBar) child.style.display = minimized ? 'none' : '';
+    });
+    minBtn.textContent = minimized ? '□' : '−';
+  });
 
   // ドラッグ移動機能
   let isDragging = false, dragOffsetX = 0, dragOffsetY = 0;
