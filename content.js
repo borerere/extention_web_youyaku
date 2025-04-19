@@ -216,12 +216,14 @@
             const html = window.marked ? window.marked.parse(response.summary) : response.summary;
             const mdDiv = document.createElement('div');
             mdDiv.innerHTML = html;
-            mdDiv.style.fontSize = '1.05em';
-            mdDiv.style.lineHeight = '1.25';
-            mdDiv.style.marginTop = '4px';
+            mdDiv.style.fontSize = '1.01em';
+            mdDiv.style.lineHeight = '1.05';
+            mdDiv.style.marginTop = '2px';
             mdDiv.style.wordBreak = 'break-word';
-            mdDiv.querySelectorAll('h1,h2,h3').forEach(h => { h.style.color = '#1976d2'; h.style.margin = '4px 0 4px 0'; });
-            mdDiv.querySelectorAll('ul,ol').forEach(l => { l.style.marginLeft = '1.5em'; });
+            mdDiv.querySelectorAll('h1,h2,h3').forEach(h => { h.style.color = '#1976d2'; h.style.margin = '2px 0 2px 0'; });
+            mdDiv.querySelectorAll('ul,ol').forEach(l => { l.style.marginLeft = '1.2em'; l.style.marginTop = '2px'; l.style.marginBottom = '2px'; });
+            mdDiv.querySelectorAll('li').forEach(li => { li.style.marginTop = '2px'; li.style.marginBottom = '2px'; li.style.lineHeight = '1.05'; });
+            mdDiv.querySelectorAll('p').forEach(p => { p.style.marginTop = '2px'; p.style.marginBottom = '2px'; p.style.lineHeight = '1.05'; });
             overlay.appendChild(mdDiv);
             // トークン情報表示
             const tokenDiv = document.createElement('div');
@@ -295,13 +297,17 @@
           if (window.marked && response.isMarkdown) html = window.marked.parse(response.answer);
           const ansDiv = document.createElement('div');
           ansDiv.innerHTML = `<b>Q: ${question}</b><br>${html}`;
-          ansDiv.style.marginTop = '4px';
+          ansDiv.style.marginTop = '2px';
           ansDiv.style.background = '#f8faff';
           ansDiv.style.border = '1px solid #cde';
           ansDiv.style.borderRadius = '6px';
-          ansDiv.style.padding = '8px';
+          ansDiv.style.padding = '4px';
           ansDiv.style.fontSize = '1em';
-          ansDiv.style.lineHeight = '1.25';
+          ansDiv.style.lineHeight = '1.05';
+          // 回答内のul,li,pにも狭い行間
+          ansDiv.querySelectorAll('ul,ol').forEach(l => { l.style.marginLeft = '1.2em'; l.style.marginTop = '2px'; l.style.marginBottom = '2px'; });
+          ansDiv.querySelectorAll('li').forEach(li => { li.style.marginTop = '2px'; li.style.marginBottom = '2px'; li.style.lineHeight = '1.05'; });
+          ansDiv.querySelectorAll('p').forEach(p => { p.style.marginTop = '2px'; p.style.marginBottom = '2px'; p.style.lineHeight = '1.05'; });
           overlay.appendChild(ansDiv);
           // 履歴に質問・回答を追加
           followupHistory.push({ role: 'user', content: `この要約について: ${question}（日本語で答えてください）` });
