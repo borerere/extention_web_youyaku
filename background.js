@@ -87,6 +87,43 @@ chrome.commands.onCommand.addListener(async (command) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'followup') {
+    (async () => {
+      try {
+        const { apiKey, model, summary, question } = message;
+        const useModel = model || 'gpt-3.5-turbo';
+        const messages = [
+          { role: 'system', content: 'あなたは優秀な日本語要約AIです。' },
+          { role: 'user', content: `以下は要約結果です。\n${summary}` },
+          { role: 'user', content: `この要約について: ${question}（日本語で答えてください）` }
+        ];
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: useModel,
+            messages,
+            max_tokens: 1024,
+            temperature: 0.5
+          })
+        });
+        let data = null;
+        try { data = await res.clone().json(); } catch {}
+        if (!res.ok || !data || !data.choices || !data.choices[0] || !data.choices[0].message.content) {
+          sendResponse({ success: false, error: 'APIエラー' });
+          return;
+        }
+        sendResponse({ success: true, answer: data.choices[0].message.content.trim(), isMarkdown: true });
+      } catch (e) {
+        sendResponse({ success: false, error: e.message });
+      }
+    })();
+    return true;
+  }
+
   if (message.type === 'summarize') {
     const { apiKey, text, model } = message;
     const useModel = model || 'gpt-3.5-turbo';
