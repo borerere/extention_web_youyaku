@@ -263,6 +263,13 @@
 
   // 再質問履歴を保持
   let followupHistory = [];
+  // Enterキーで送信
+  followupInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      followupBtn.click();
+    }
+  });
   // 再質問送信イベント
   followupBtn.addEventListener('click', async () => {
     const question = followupInput.value.trim();
