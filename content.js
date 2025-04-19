@@ -261,6 +261,8 @@
     });
   }
 
+  // 再質問履歴を保持
+  let followupHistory = [];
   // 再質問送信イベント
   followupBtn.addEventListener('click', async () => {
     const question = followupInput.value.trim();
@@ -275,7 +277,8 @@
         apiKey,
         model,
         summary: window.__youyaku_last_summary,
-        question
+        question,
+        history: followupHistory
       }, async (response) => {
         followupBtn.disabled = false;
         followupBtn.textContent = '送信';
@@ -292,6 +295,9 @@
           ansDiv.style.padding = '12px';
           ansDiv.style.fontSize = '1em';
           overlay.appendChild(ansDiv);
+          // 履歴に質問・回答を追加
+          followupHistory.push({ role: 'user', content: `この要約について: ${question}（日本語で答えてください）` });
+          followupHistory.push({ role: 'assistant', content: response.answer });
         } else {
           const errDiv = document.createElement('div');
           errDiv.textContent = '再質問に失敗しました: ' + (response && response.error ? response.error : '不明なエラー');
@@ -303,6 +309,7 @@
       });
     });
   });
+
 
   // ボタンイベント
   let btnSimpleHover = false;

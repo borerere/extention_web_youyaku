@@ -90,13 +90,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'followup') {
     (async () => {
       try {
-        const { apiKey, model, summary, question } = message;
+        const { apiKey, model, summary, question, history } = message;
         const useModel = model || 'gpt-3.5-turbo';
-        const messages = [
+        // 会話履歴を展開
+        let messages = [
           { role: 'system', content: 'あなたは優秀な日本語要約AIです。' },
-          { role: 'user', content: `以下は要約結果です。\n${summary}` },
-          { role: 'user', content: `この要約について: ${question}（日本語で答えてください）` }
+          { role: 'user', content: `以下は要約結果です。\n${summary}` }
         ];
+        if (Array.isArray(history)) {
+          for (const h of history) {
+            if (h.role && h.content) messages.push(h);
+          }
+        }
+        messages.push({ role: 'user', content: `この要約について: ${question}（日本語で答えてください）` });
         const res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
